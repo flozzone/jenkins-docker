@@ -7,6 +7,8 @@ on:
   workflow_dispatch:
 
 env:
+  REGISTRY: ghcr.io
+  ARCH: amd64
   JENKINS_VERSION: 2.332.3
   JENKINS_SHA: d193f179aadf3a7ceb61adebc3ab51218ac4a7852b88932ff33b44fd7be6010f
 
@@ -28,20 +30,13 @@ jobs:
         name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
-      -
-        name: build
-        run: |
-          make build-rhel_ocp_ubi8_jdk11
 
-      -
-        name: inspect
-        run: |
-          docker images
-
-      - name: Push image
-        run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ github.repository }}
-          VERSION=${JENKINS_VERSION}-rhel-ocp-ubi8-jdk11
-
-          docker tag jenkins/jenkins:$VERSION $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      - name: Build and push
+        uses: docker/bake-action@master
+        with:
+          push: true
+          files: docker-bake.hcl
+          targets: rhel_ocp_ubi8_jdk11
+          set: |
+            rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:ocp-${{ env.JENKINS_VERSION }}
+            *.platform=linux/${{ env.ARCH }}
