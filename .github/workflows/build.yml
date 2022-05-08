@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - custom
+  schedule:
+    - cron: "* 23 * * *"
   workflow_dispatch:
 
 env:
