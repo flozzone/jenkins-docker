@@ -20,6 +20,23 @@ jobs:
         name: Checkout
         uses: actions/checkout@v3
 
+      -
+        name: Get Jenkins LTS version
+        id: jenkins-version
+        run: |
+          echo "::set-output name=LTS_VERSION::$(curl -sL http://mirrors.jenkins.io/updates/stable/update-center.actual.json | jq -r .core.version)"
+
+      - name: debug
+        run: |
+          echo "${{ steps.jenkins-version.outputs.LTS_VERSION }}"
+
+      - name: Get Jenkins LTS SHA
+        id: jenkins-sha
+        env:
+          JENKINS_VERSION: ${{ steps.jenkins-version.outputs.LTS_VERSION }}
+        run: |
+          echo "::set-output name=LTS_SHA::$(curl -sL https://get.jenkins.io/war-stable/${{ steps.jenkins-version.outputs.LTS_VERSION }}/jenkins.war.sha256 | cut -d' ' -f1)"
+
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
@@ -33,6 +50,9 @@ jobs:
 
       - name: Build and push
         uses: docker/bake-action@master
+        env:
+          JENKINS_VERSION: ${{ steps.jenkins-version.outputs.LTS_VERSION }}
+          JENKINS_SHA: ${{ steps.jenkins-sha.outputs.LTS_SHA }}
         with:
           push: true
           files: docker-bake.hcl
