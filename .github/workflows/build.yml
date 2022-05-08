@@ -9,8 +9,6 @@ on:
 env:
   REGISTRY: ghcr.io
   ARCH: amd64
-  JENKINS_VERSION: 2.332.3
-  JENKINS_SHA: d193f179aadf3a7ceb61adebc3ab51218ac4a7852b88932ff33b44fd7be6010f
 
 jobs:
   buildx:
@@ -26,14 +24,8 @@ jobs:
         run: |
           echo "::set-output name=LTS_VERSION::$(curl -sL http://mirrors.jenkins.io/updates/stable/update-center.actual.json | jq -r .core.version)"
 
-      - name: debug
-        run: |
-          echo "${{ steps.jenkins-version.outputs.LTS_VERSION }}"
-
       - name: Get Jenkins LTS SHA
         id: jenkins-sha
-        env:
-          JENKINS_VERSION: ${{ steps.jenkins-version.outputs.LTS_VERSION }}
         run: |
           echo "::set-output name=LTS_SHA::$(curl -sL https://get.jenkins.io/war-stable/${{ steps.jenkins-version.outputs.LTS_VERSION }}/jenkins.war.sha256 | cut -d' ' -f1)"
 
@@ -58,5 +50,5 @@ jobs:
           files: docker-bake.hcl
           targets: rhel_ocp_ubi8_jdk11
           set: |
-            rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:ocp-${{ env.JENKINS_VERSION }}
+            rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:ocp-${{ steps.jenkins-version.outputs.LTS_VERSION }}
             *.platform=linux/${{ env.ARCH }}
