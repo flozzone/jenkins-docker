@@ -55,9 +55,10 @@ jobs:
           JENKINS_SHA: ${{ steps.jenkins-sha.outputs.LTS_SHA }}
         with:
           push: true
-          files: docker-bake.hcl
+          files: |
+            docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
           targets: rhel_ocp_ubi8_jdk11
           set: |
             rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ github.repository }}:ocp-${{ steps.jenkins-version.outputs.LTS_VERSION }}
             *.platform=linux/${{ env.ARCH }}
-            rhel_ocp_ubi8_jdk11.labels=${{ steps.meta.outputs.labels }}
