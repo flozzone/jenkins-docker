@@ -35,7 +35,7 @@ jobs:
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Set up Docker Buildx
@@ -52,5 +52,5 @@ jobs:
           files: docker-bake.hcl
           targets: rhel_ocp_ubi8_jdk11
           set: |
-            rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.actor }}/${{ github.repository }}:ocp-${{ steps.jenkins-version.outputs.LTS_VERSION }}
+            rhel_ocp_ubi8_jdk11.tags=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ github.repository }}:ocp-${{ steps.jenkins-version.outputs.LTS_VERSION }}
             *.platform=linux/${{ env.ARCH }}
