@@ -5,7 +5,7 @@ on:
     branches:
       - custom
   schedule:
-    - cron: "* 23 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 env:
